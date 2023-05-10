@@ -17,14 +17,38 @@ function makeDir() {
       fs.mkdir(newAssetsPath, { recursive: true }, function (error) {
         if (error) {
           throw error;
-        } else {
-          // stdout.write(`Папки "project-dist" и "project-dist/assets" созданы`); //! переделать вывод письма
         }
       });
     }
   });
 }
 makeDir();
+
+function copyDir(src, dest) {
+  fs.mkdir(dest, { recursive: true }, function(error) {
+    if (error) {
+      throw error;
+    } else {
+      fs.readdir(src, { withFileTypes: true }, function(error, elements) {
+        if (error) {
+          throw error;
+        } else {
+          elements.forEach(function(element) {
+            if (element.isFile()) {
+              fs.promises.copyFile(path.join(src, element.name), path.join(dest, element.name));
+            } else if (element.isDirectory()) {
+              const newSrc = path.join(src, element.name);
+              const newDest = path.join(dest, element.name);
+              copyDir(newSrc, newDest);
+            }
+          });
+        }
+      });
+    }
+  });
+}
+copyDir(oldAssetsPath, newAssetsPath);
+
 
 let writeableStream = fs.createWriteStream(pathOfStyleCSS);
 fs.createWriteStream(pathOfStyleCSS, "utf8", function (error) {
