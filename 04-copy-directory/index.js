@@ -23,3 +23,14 @@ fs.mkdir(newFolderPath, { recursive: true }, function (error) {
     });
   }
 });
+
+fs.watch(folderPath, function (eventType, filename) {
+  if (eventType === "rename") {
+    const filePath = path.join(newFolderPath, filename);
+    fs.unlink(filePath, function (error) {
+      if (error) {
+        throw error;
+      }
+    });
+  }
+});
